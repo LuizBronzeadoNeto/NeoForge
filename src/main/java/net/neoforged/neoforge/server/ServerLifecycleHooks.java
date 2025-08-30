@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistrationInfo;
@@ -50,18 +51,19 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries.Keys;
 import net.neoforged.neoforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.jetbrains.annotations.Nullable;
 
 public class ServerLifecycleHooks {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Marker SERVERHOOKS = MarkerManager.getMarker("SERVERHOOKS");
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
     @Nullable
-    private static volatile CountDownLatch exitLatch = null;
+    private static final AtomicReference<CountDownLatch> exitLatch = new AtomicReference<>();
     @Nullable
     private static MinecraftServer currentServer;
+
+    private ServerLifecycleHooks() {
+        throw new IllegalStateException("Utility class");
+    }
 
     private static Path getServerConfigPath(final MinecraftServer server) {
         final Path serverConfig = server.getWorldPath(SERVERCONFIG);
@@ -69,7 +71,7 @@ public class ServerLifecycleHooks {
             try {
                 Files.createDirectories(serverConfig);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to create server config directory: " + serverConfig, e);
             }
         }
         final Path explanation = serverConfig.resolve("readme.txt");
@@ -81,7 +83,7 @@ public class ServerLifecycleHooks {
                         For example if you are overwriting a config with the path <instance path>/config/ExampleMod/config-server.toml, you would need to put it in serverconfig/ExampleMod/config-server.toml
                         """, StandardCharsets.UTF_8);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to write readme.txt to: " + explanation, e);
             }
         }
         return serverConfig;
@@ -112,17 +114,16 @@ public class ServerLifecycleHooks {
     }
 
     public static void expectServerStopped() {
-        exitLatch = new CountDownLatch(1);
+        exitLatch.set(new CountDownLatch(1));
     }
 
     public static void handleServerStopped(final MinecraftServer server) {
         NeoForge.EVENT_BUS.post(new ServerStoppedEvent(server));
         currentServer = null;
-        CountDownLatch latch = exitLatch;
+        CountDownLatch latch = exitLatch.getAndSet(null);
 
         if (latch != null) {
             latch.countDown();
-            exitLatch = null;
         }
         ConfigTracker.INSTANCE.unloadConfigs(ModConfig.Type.SERVER);
     }
@@ -200,14 +201,10 @@ public class ServerLifecycleHooks {
             }
         });
         // Rebuild the indexed feature list
-        registries.lookupOrThrow(Registries.LEVEL_STEM).forEach(levelStem -> {
-            levelStem.generator().refreshFeaturesPerStep();
-        });
+        registries.lookupOrThrow(Registries.LEVEL_STEM).forEach(levelStem -> levelStem.generator().refreshFeaturesPerStep());
 
         // Apply sorted structure modifiers to each structure.
-        registries.lookupOrThrow(Registries.STRUCTURE).listElements().forEach(structureHolder -> {
-            structureHolder.value().modifiableStructureInfo().applyStructureModifiers(structureHolder, structureModifiers);
-        });
+        registries.lookupOrThrow(Registries.STRUCTURE).listElements().forEach(structureHolder -> structureHolder.value().modifiableStructureInfo().applyStructureModifiers(structureHolder, structureModifiers));
 
         if (!entitiesWithoutPlacements.isEmpty() && !FMLLoader.isProduction()) {
             LOGGER.error("The following entities have not registered to the RegisterSpawnPlacementsEvent, but a spawn entry was found. This will mean that the entity doesn't have restrictions on its spawn location, please register a spawn placement for the entity, you can register with NO_RESTRICTIONS if you don't want any restrictions."
