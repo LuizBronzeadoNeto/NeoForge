@@ -12,6 +12,7 @@ import cpw.mods.modlauncher.api.TransformerVoteResult;
 import java.util.List;
 import java.util.Set;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -62,23 +63,58 @@ public class ReplaceFieldComparisonWithInstanceOf implements ITransformer<Method
 
     @Override
     public MethodNode transform(MethodNode methodNode, ITransformerVotingContext votingContext) {
-        var count = 0;
-        for (var node = methodNode.instructions.getFirst(); node != null; node = node.getNext()) {
-            if (node instanceof JumpInsnNode jumpNode && (jumpNode.getOpcode() == Opcodes.IF_ACMPEQ || jumpNode.getOpcode() == Opcodes.IF_ACMPNE)) {
-                if (node.getPrevious() instanceof FieldInsnNode fieldAccessNode && (fieldAccessNode.getOpcode() == Opcodes.GETSTATIC || fieldAccessNode.getOpcode() == Opcodes.GETFIELD)) {
-                    if (fieldAccessNode.owner.equals(fieldOwner) && fieldAccessNode.name.equals(fieldName)) {
-                        methodNode.instructions.set(fieldAccessNode, new TypeInsnNode(Opcodes.INSTANCEOF, replacementClassName));
-                        methodNode.instructions.set(jumpNode, new JumpInsnNode(jumpNode.getOpcode() == Opcodes.IF_ACMPEQ ? Opcodes.IFNE : Opcodes.IFEQ, jumpNode.label));
-                        count++;
-                    }
-                }
+        int count = 0;
+        for (AbstractInsnNode node = methodNode.instructions.getFirst(); node != null; node = node.getNext()) {
+            // Guard Clause 1: The current node must be a reference comparison jump instruction.
+            if (!(node instanceof JumpInsnNode jumpNode) || !isTargetJumpOpcode(jumpNode.getOpcode())) {
+                continue;
             }
+
+            // Guard Clause 2: The previous node must be a field access instruction that matches our target.
+            AbstractInsnNode previousNode = node.getPrevious();
+            if (!(previousNode instanceof FieldInsnNode fieldAccessNode) || !isTargetFieldAccess(fieldAccessNode)) {
+                continue;
+            }
+
+            // If all guards have passed, apply the transformation.
+            applyTransformation(methodNode, jumpNode, fieldAccessNode);
+            count++;
         }
 
-        LOG.trace("Transforming: {}.", methodNode.name);
-        LOG.trace("field_to_instance: Replaced {} checks", count);
+        if (count > 0) {
+            LOG.trace("Transforming: {}. Replaced {} field comparison(s) with instanceof checks.", methodNode.name, count);
+        }
 
         return methodNode;
+    }
+
+    /**
+     * Checks if the jump instruction's opcode is one of the targeted reference comparisons.
+     */
+    private boolean isTargetJumpOpcode(int opcode) {
+        return opcode == Opcodes.IF_ACMPEQ || opcode == Opcodes.IF_ACMPNE;
+    }
+
+    /**
+     * Checks if the field access instruction matches the exact field we want to replace.
+     */
+    private boolean isTargetFieldAccess(FieldInsnNode fieldAccessNode) {
+        int opcode = fieldAccessNode.getOpcode();
+        boolean isCorrectOpcode = opcode == Opcodes.GETSTATIC || opcode == Opcodes.GETFIELD;
+        boolean isCorrectOwner = fieldAccessNode.owner.equals(this.fieldOwner);
+        boolean isCorrectName = fieldAccessNode.name.equals(this.fieldName);
+        return isCorrectOpcode && isCorrectOwner && isCorrectName;
+    }
+
+    /**
+     * Applies the bytecode transformation, replacing the field comparison with an instanceof check.
+     */
+    private void applyTransformation(MethodNode methodNode, JumpInsnNode jumpNode, FieldInsnNode fieldAccessNode) {
+        // Replace GETSTATIC/GETFIELD with INSTANCEOF
+        methodNode.instructions.set(fieldAccessNode, new TypeInsnNode(Opcodes.INSTANCEOF, this.replacementClassName));
+        // Convert the reference comparison (ACMPEQ/ACMPNE) to an integer/boolean comparison (NE/EQ)
+        int newJumpOpcode = jumpNode.getOpcode() == Opcodes.IF_ACMPEQ ? Opcodes.IFNE : Opcodes.IFEQ;
+        methodNode.instructions.set(jumpNode, new JumpInsnNode(newJumpOpcode, jumpNode.label));
     }
 
     @Override

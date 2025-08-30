@@ -41,6 +41,7 @@ dependencies {
         }
     }
     junitImplementation(testframeworkProject)
+    junitImplementation(coremodsProject)
 
     compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
 }
