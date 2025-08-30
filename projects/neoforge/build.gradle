@@ -89,6 +89,8 @@ neoDev {
 }
 
 dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
+
     // For an overview of what the nonstandard configurations do,
     // have a look at NeoDevConfigurations.java in the buildSrc folder.
 
