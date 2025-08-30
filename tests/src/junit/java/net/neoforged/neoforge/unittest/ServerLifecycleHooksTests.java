@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(EphemeralTestServerProvider.class)
 public class ServerLifecycleHooksTests {
-
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
 
     private static Method getServerConfigPathReflect;
