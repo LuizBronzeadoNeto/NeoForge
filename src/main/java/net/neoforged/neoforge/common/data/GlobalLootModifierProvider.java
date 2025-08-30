@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -42,7 +41,7 @@ public abstract class GlobalLootModifierProvider implements DataProvider {
     private final Map<String, WithConditions<IGlobalLootModifier>> toSerialize = new LinkedHashMap<>();
     private boolean replace = false;
 
-    public GlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modid) {
+    protected GlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modid) {
         this.output = output;
         this.registriesLookup = registries;
         this.modid = modid;
@@ -61,12 +60,12 @@ public abstract class GlobalLootModifierProvider implements DataProvider {
     protected abstract void start();
 
     @Override
-    public final CompletableFuture<?> run(CachedOutput cache) {
+    public final CompletableFuture<Void> run(CachedOutput cache) {
         return this.registriesLookup.thenCompose(registries -> this.run(cache, registries));
     }
 
-    protected CompletableFuture<?> run(CachedOutput cache, HolderLookup.Provider registries) {
-        this.registries = registries;
+    protected CompletableFuture<Void> run(CachedOutput cache, HolderLookup.Provider pRegistries) {
+        this.registries = pRegistries;
         start();
 
         Path forgePath = this.output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve("neoforge").resolve("loot_modifiers").resolve("global_loot_modifiers.json");
@@ -85,7 +84,7 @@ public abstract class GlobalLootModifierProvider implements DataProvider {
 
         JsonObject forgeJson = new JsonObject();
         forgeJson.addProperty("replace", this.replace);
-        forgeJson.add("entries", GSON.toJsonTree(entries.stream().map(ResourceLocation::toString).collect(Collectors.toList())));
+        forgeJson.add("entries", GSON.toJsonTree(entries.stream().map(ResourceLocation::toString).toList()));
 
         futuresBuilder.add(DataProvider.saveStable(cache, forgeJson, forgePath));
 
