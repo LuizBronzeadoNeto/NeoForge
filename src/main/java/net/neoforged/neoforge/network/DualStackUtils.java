@@ -68,7 +68,7 @@ public class DualStackUtils {
      * Handles the case where the given address is IPv6.
      * Logs detection if enabled and sets system properties accordingly.
      *
-     * @param addr the IPv6 address
+     * @param addr           the IPv6 address
      * @param shouldLogDebug whether debug logs should be emitted
      * @return always {@code true}, indicating IPv6
      */
@@ -84,7 +84,7 @@ public class DualStackUtils {
      * Handles the case where the given address is IPv4.
      * Logs detection if enabled and sets system properties accordingly.
      *
-     * @param addr the IPv4 address
+     * @param addr           the IPv4 address
      * @param shouldLogDebug whether debug logs should be emitted
      * @return always {@code false}, indicating IPv4
      */
@@ -100,7 +100,7 @@ public class DualStackUtils {
      * Handles the case where the IP version could not be determined.
      * Falls back to initial JVM preferences or assumes IPv4 by default.
      *
-     * @param inetAddress the unknown address (may be {@code null})
+     * @param inetAddress    the unknown address (may be {@code null})
      * @param shouldLogDebug whether debug logs should be emitted
      * @return {@code true} if treated as IPv6, {@code false} otherwise
      */
@@ -167,7 +167,7 @@ public class DualStackUtils {
 
     /**
      * Used for the "Open to LAN" feature.
-     * 
+     *
      * @return The multicast group to use for LAN discovery - IPv6 if available, IPv4 otherwise.
      */
     public static String getMulticastGroup() {

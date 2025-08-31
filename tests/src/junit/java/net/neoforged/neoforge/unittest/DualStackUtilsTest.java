@@ -5,7 +5,11 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -21,7 +25,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class DualStackUtilsTest {
-
     private String prevPreferIPv4Stack;
     private String prevPreferIPv6Addresses;
 
@@ -109,9 +112,8 @@ public class DualStackUtilsTest {
     void getMulticastGroup_returnsKnownValueAndUpdatesPropertiesConsistently() {
         String group = DualStackUtils.getMulticastGroup();
         assertTrue(
-            group.equals("FF75:230::60") || group.equals("224.0.2.60"),
-            "Multicast group must be IPv6 or IPv4 predefined value"
-        );
+                group.equals("FF75:230::60") || group.equals("224.0.2.60"),
+                "Multicast group must be IPv6 or IPv4 predefined value");
 
         if (group.equals("FF75:230::60")) {
             assertEquals("true", System.getProperty("java.net.preferIPv6Addresses"));
