@@ -5,7 +5,10 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.neoforged.neoforge.common.ticket.ITicketManager;
 import net.neoforged.neoforge.common.ticket.SimpleTicket;
@@ -15,18 +18,32 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class SimpleTicketTest {
-
     private static class TestTicket extends SimpleTicket<String> {
         private final String match;
-        TestTicket(String match) { this.match = match; }
-        @Override public boolean matches(String toMatch) { return match.equals(toMatch); }
+
+        TestTicket(String match) {
+            this.match = match;
+        }
+
+        @Override
+        public boolean matches(String toMatch) {
+            return match.equals(toMatch);
+        }
     }
 
     private static class CountingManager<T> implements ITicketManager<T> {
         int addCalls = 0;
         int removeCalls = 0;
-        @Override public void add(SimpleTicket<T> ticket) { addCalls++; }
-        @Override public void remove(SimpleTicket<T> ticket) { removeCalls++; }
+
+        @Override
+        public void add(SimpleTicket<T> ticket) {
+            addCalls++;
+        }
+
+        @Override
+        public void remove(SimpleTicket<T> ticket) {
+            removeCalls++;
+        }
     }
 
     @Test

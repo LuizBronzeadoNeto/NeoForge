@@ -5,7 +5,8 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -14,7 +15,6 @@ import net.neoforged.neoforge.logging.PacketDump;
 import org.junit.jupiter.api.Test;
 
 public class PacketDumpTest {
-
     @Test
     void emptyBufferProducesOnlyHeaderAndLength() {
         ByteBuf buf = Unpooled.wrappedBuffer(new byte[0]);
@@ -31,7 +31,7 @@ public class PacketDumpTest {
         String ascii = "0123456789ABCDEF";
 
         assertTrue(dump.startsWith(hex + "\t" + ascii + "\n"), "Hex line should be followed by ASCII and newline at 16 bytes");
-        assertEquals(1, countOccurrences(dump, "\t" + ascii + "\n"), "ASCII segment should appear twice when length is multiple of 16");
+        assertEquals(1, countOccurrences(dump, "\t" + ascii + "\n"), "ASCII segment should appear exactly once when length is a multiple of 16");
         assertTrue(dump.endsWith("Length: 16"), "Should end with correct length");
     }
 

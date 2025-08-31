@@ -5,11 +5,13 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,18 +25,35 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ItemStackHandlerTest {
-
     static class TrackingHandler extends ItemStackHandler {
         int changes;
         int lastSlot = -1;
-        TrackingHandler(int size) { super(size); }
-        @Override protected void onContentsChanged(int slot) { changes++; lastSlot = slot; }
-        @Override protected void onLoad() { /* no-op */ }
+
+        TrackingHandler(int size) {
+            super(size);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            changes++;
+            lastSlot = slot;
+        }
+
+        @Override
+        protected void onLoad() {
+            /* no-op */
+        }
     }
 
     static class RejectingHandler extends ItemStackHandler {
-        RejectingHandler(int size) { super(size); }
-        @Override public boolean isItemValid(int slot, ItemStack stack) { return false; }
+        RejectingHandler(int size) {
+            super(size);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return false;
+        }
     }
 
     @Test

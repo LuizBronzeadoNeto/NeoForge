@@ -90,7 +90,7 @@ public class CreativeTabOrderTest {
 
     /**
      * The local tabEnchantments variable comes from {@link CreativeModeTabs#generateEnchantmentBookTypesOnlyMaxLevel}
-     * 
+     *
      * @param server Ephemeral server from extension
      */
     @Test
@@ -109,7 +109,7 @@ public class CreativeTabOrderTest {
 
     /**
      * The local tabEnchantments variable comes from {@link CreativeModeTabs#generateEnchantmentBookTypesAllLevels}
-     * 
+     *
      * @param server Ephemeral server from extension
      */
     @Test

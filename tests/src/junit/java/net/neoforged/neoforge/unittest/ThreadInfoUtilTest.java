@@ -5,13 +5,14 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.concurrent.locks.ReentrantLock;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import net.neoforged.neoforge.logging.ThreadInfoUtil;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ThreadInfoUtilTest {
-
     @Test
     void formatsHeaderWithNameIdAndState() {
         Thread current = Thread.currentThread();
@@ -48,7 +48,9 @@ public class ThreadInfoUtilTest {
                 entered.countDown();
                 try {
                     release.await(5, TimeUnit.SECONDS);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }, "monitor-holder");
         holder.start();
@@ -72,7 +74,11 @@ public class ThreadInfoUtilTest {
         Thread holder = new Thread(() -> {
             synchronized (monitor) {
                 entered.countDown();
-                try { stop.await(5, TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+                try {
+                    stop.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }, "holder");
         holder.start();
@@ -112,7 +118,9 @@ public class ThreadInfoUtilTest {
                 waiting.countDown();
                 try {
                     waitObj.wait();
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
             done.countDown();
         }, "waiter");
@@ -127,7 +135,9 @@ public class ThreadInfoUtilTest {
         String s = ThreadInfoUtil.getEntireStacktrace(ti);
         assertTrue(s.contains("-  waiting on "), "Should include a 'waiting on' line");
 
-        synchronized (waitObj) { waitObj.notifyAll(); }
+        synchronized (waitObj) {
+            waitObj.notifyAll();
+        }
         assertTrue(done.await(5, TimeUnit.SECONDS), "Waiter did not finish");
     }
 
@@ -142,7 +152,8 @@ public class ThreadInfoUtilTest {
             try {
                 entered.countDown();
                 release.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } finally {
                 lock.unlock();
             }
@@ -161,7 +172,7 @@ public class ThreadInfoUtilTest {
 
     private static ThreadInfo getInfo(long tid) {
         var mx = ManagementFactory.getThreadMXBean();
-        ThreadInfo[] infos = mx.getThreadInfo(new long[]{tid}, true, true);
+        ThreadInfo[] infos = mx.getThreadInfo(new long[] { tid }, true, true);
         return infos[0];
     }
 

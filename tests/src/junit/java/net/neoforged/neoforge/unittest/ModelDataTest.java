@@ -5,7 +5,12 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.model.data.ModelProperty;
@@ -15,7 +20,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ModelDataTest {
-
     private static final ModelProperty<String> P1 = new ModelProperty<>(s -> s != null && !s.isEmpty());
     private static final ModelProperty<Integer> P2 = new ModelProperty<>(i -> i != null && i >= 0);
     private static final ModelProperty<Double> P3 = new ModelProperty<>(d -> d != null);
@@ -68,11 +72,11 @@ public class ModelDataTest {
     void builder_reachingHashThreshold_keepsAllEntries() {
         // Threshold is 4; add 4 entries and verify they are all present
         var data = ModelData.builder()
-            .with(P1, "a")
-            .with(P2, 1)
-            .with(P3, 2.0)
-            .with(P4, true)
-            .build();
+                .with(P1, "a")
+                .with(P2, 1)
+                .with(P3, 2.0)
+                .with(P4, true)
+                .build();
 
         assertTrue(data.has(P1));
         assertTrue(data.has(P2));

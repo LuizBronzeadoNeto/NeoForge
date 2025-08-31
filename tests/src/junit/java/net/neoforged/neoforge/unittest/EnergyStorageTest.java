@@ -5,7 +5,9 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.util.ProblemReporter;
@@ -18,7 +20,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class EnergyStorageTest {
-
     @Test
     void ctor_initialEnergyIsClampedWithinBounds() {
         EnergyStorage s1 = new EnergyStorage(100, 10, 10, 150);

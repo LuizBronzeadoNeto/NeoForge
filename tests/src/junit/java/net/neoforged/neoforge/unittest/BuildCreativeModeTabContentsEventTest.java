@@ -22,7 +22,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class BuildCreativeModeTabContentsEventTest {
-
     private static BuildCreativeModeTabContentsEvent newEvent() {
         // Use null for CreativeModeTab and ItemDisplayParameters as they are not needed for the tested behaviors
         var parent = new InsertableLinkedOpenCustomHashSet<ItemStack>(ItemStackLinkedSet.TYPE_AND_TAG);

@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import cpw.mods.modlauncher.api.ITransformer;
 import java.lang.reflect.Method;
 import java.util.List;
+import net.neoforged.neoforge.coremods.ReplaceFieldComparisonWithInstanceOf;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
@@ -19,10 +20,8 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
-import net.neoforged.neoforge.coremods.ReplaceFieldComparisonWithInstanceOf;
 
 public class ReplaceFieldComparisonWithInstanceOfTests {
-
     private ReplaceFieldComparisonWithInstanceOf newTransformer(String owner, String name, String replacement) {
         return new ReplaceFieldComparisonWithInstanceOf(owner, name, replacement, List.<ITransformer.Target<MethodNode>>of());
     }

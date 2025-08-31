@@ -5,7 +5,9 @@
 
 package net.neoforged.neoforge.unittest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import joptsimple.internal.Strings;
 import net.neoforged.neoforge.logging.CrashReportExtender;
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class CrashReportExtenderTest {
-
     @Test
     void generateEnhancedStackTrace_includesThrowableClassAndMessage() {
         RuntimeException ex = new RuntimeException("boom");

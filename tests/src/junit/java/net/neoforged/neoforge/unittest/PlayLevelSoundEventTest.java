@@ -19,7 +19,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class PlayLevelSoundEventTest {
-
     private static Holder<SoundEvent> soundA() {
         return SoundEvents.GENERIC_EAT;
     }

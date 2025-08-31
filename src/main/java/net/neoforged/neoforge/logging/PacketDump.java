@@ -25,8 +25,7 @@ public class PacketDump {
             }
         }
         // Handle empty buffer
-        if (length == 0)
-        {
+        if (length == 0) {
             sb.append('\t').append('\n');
         }
         // Handle final incomplete line
